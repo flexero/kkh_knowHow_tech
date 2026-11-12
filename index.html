@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HVAC Design Guide</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1d2330;--mut:#5d6778;--line:#d9dee6;--acc:#0b6bcb;--acc2:#d9480f;--ok:#2b8a3e;--warn:#e67700;
+--c1:#1971c2;--c2:#e8590c;--c3:#2f9e44;--c4:#ae3ec9;--c5:#f08c00;--c6:#0c8599;--c7:#c2255c;--c8:#868e96;--code:#eef1f5}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11151c;--card:#1a2029;--fg:#e4e8ee;--mut:#9aa4b2;--line:#2c3542;--acc:#4dabf7;--acc2:#ff8a50;--code:#232b36;
+--c1:#4dabf7;--c2:#ff922b;--c3:#69db7c;--c4:#da77f2;--c5:#ffd43b;--c6:#3bc9db;--c7:#f783ac;--c8:#adb5bd}}
+:root[data-theme=dark]{--bg:#11151c;--card:#1a2029;--fg:#e4e8ee;--mut:#9aa4b2;--line:#2c3542;--acc:#4dabf7;--acc2:#ff8a50;--code:#232b36;
+--c1:#4dabf7;--c2:#ff922b;--c3:#69db7c;--c4:#da77f2;--c5:#ffd43b;--c6:#3bc9db;--c7:#f783ac;--c8:#adb5bd}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.bar{max-width:1180px;margin:auto;padding:10px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.bar h1{font-size:18px;margin:0 8px 0 0}
+nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+nav a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:6px;font-size:13.5px}
+nav a:hover{background:var(--code);color:var(--fg)}
+#theme{border:1px solid var(--line);background:none;color:var(--fg);border-radius:6px;padding:4px 9px;cursor:pointer}
+main{max-width:1180px;margin:auto;padding:16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:0 0 18px}
+h2{margin:0 0 6px;font-size:21px}h3{margin:18px 0 6px;font-size:16px}
+p.lead{color:var(--mut);margin:0 0 12px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:860px){.g2,.g3{grid-template-columns:minmax(0,1fr)}}
+label{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13.5px;margin:3px 0}
+input,select{width:96px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--fg);font:inherit;font-size:13.5px}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:0 0 10px}
+legend{font-size:12.5px;font-weight:600;color:var(--acc);padding:0 4px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:right}th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-weight:600}
+.tw{overflow-x:auto}
+.kpi{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.kpi div{flex:1 1 120px;background:var(--code);border-radius:8px;padding:8px 10px}
+.kpi b{display:block;font-size:19px}.kpi span{font-size:12px;color:var(--mut)}
+pre,code{font-family:Consolas,"Cascadia Mono",monospace;font-size:12.8px}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;margin:6px 0}
+code{background:var(--code);padding:1px 4px;border-radius:4px}
+.eq{background:var(--code);border-left:3px solid var(--acc);padding:8px 12px;border-radius:0 6px 6px 0;font-family:Consolas,monospace;font-size:13px;margin:6px 0;overflow-x:auto;white-space:pre}
+canvas{width:100%;display:block;background:var(--card)}
+.note{font-size:12.5px;color:var(--mut)}
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--mut);margin-top:4px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+svg text{fill:var(--fg);font:12px system-ui,sans-serif}
+.step{cursor:pointer}.step rect{fill:var(--code);stroke:var(--line);transition:.15s}
+.step:hover rect,.step.on rect{stroke:var(--acc);stroke-width:2}
+#stepInfo{min-height:96px}
+.pill{display:inline-block;background:var(--code);border-radius:20px;padding:1px 8px;font-size:12px;margin:1px}
+.ok{color:var(--ok)}.bad{color:var(--acc2)}
+</style>
+</head>
+<body>
+<header><div class="bar"><h1>HVAC Design</h1>
+<nav><a href="#flow">Workflow</a><a href="#psy">Psychrometrics</a><a href="#load">Cooling load</a><a href="#coil">Air process</a><a href="#duct">Ducts</a><a href="#pipe">Pipes & plant</a><a href="#bom">Equipment & BOM</a><a href="#engine">Python engine</a></nav>
+<button id="theme" title="Toggle theme">◐</button></div></header>
+<main>
+
+<!-- ================= WORKFLOW ================= -->
+<section id="flow">
+<h2>1 · Design workflow</h2>
+<p class="lead">An HVAC design goes from the building to the loads, then the air, then distribution, then the plant. Click a step to see its inputs, method, outputs and the engine function. Full equations and tables are in <code>README.md</code>.</p>
+<svg id="wfsvg" viewBox="0 0 1000 190" width="100%" role="img" aria-label="HVAC design workflow"></svg>
+<div id="stepInfo" class="note"></div>
+</section>
+
+<!-- ================= PSYCHRO ================= -->
+<section id="psy">
+<h2>2 · Psychrometrics</h2>
+<p class="lead">Every air-side calculation depends on the state of moist air. Two independent properties plus pressure define the state completely. The engine uses the ASHRAE Hyland–Wexler equations.</p>
+<div class="grid g2">
+<div>
+<div class="eq">p_ws : ln p = C8/T + C9 + C10·T + C11·T² + C12·T³ + C13·ln T
+W  = 0.621945 · p_w / (p − p_w)          [kg/kg]
+h  = 1.006·t + W·(2501 + 1.86·t)         [kJ/kg]
+v  = 0.287042·(t+273.15)(1+1.607858·W)/p [m³/kg]
+p  = 101.325·(1 − 2.25577e-5·Z)^5.2559   [kPa]</div>
+<fieldset><legend>State calculator</legend>
+<label>Dry bulb t [°C]<input id="pT" type="number" value="36" step="0.5"></label>
+<label>Second property<select id="pMode"><option value="wb">Wet bulb [°C]</option><option value="rh">RH [%]</option><option value="dp">Dew point [°C]</option><option value="w">W [g/kg]</option></select></label>
+<label>Value<input id="pV" type="number" value="28" step="0.5"></label>
+<label>Altitude [m]<input id="pZ" type="number" value="10" step="10"></label>
+</fieldset>
+<div class="tw"><table id="pOut"></table></div>
+</div>
+<div><canvas id="chart" height="420"></canvas>
+<div class="leg"><span><i style="background:var(--c2)"></i>Outdoor (O)</span><span><i style="background:var(--c1)"></i>Room (R)</span><span><i style="background:var(--c4)"></i>Mixed (M)</span><span><i style="background:var(--c3)"></i>Off-coil / Supply (C,S)</span><span><i style="background:var(--c8)"></i>ADP</span><span><i style="background:var(--c7)"></i>Calculator point</span></div>
+<p class="note">Lines are RH 10–100 %. The process lines O→M←R and M→C→ADP come from section 4 and update live.</p></div>
+</div>
+</section>
+
+<!-- ================= LOAD ================= -->
+<section id="load">
+<h2>3 · Cooling load (hourly)</h2>
+<p class="lead">Heat <b>gain</b> is not cooling <b>load</b>. The radiant part of each gain is first stored in the building mass and released later, so the load peaks lower and later than the gain. This page runs the same algorithm as <code>cooling_load()</code> over 24 hours.</p>
+<div class="grid g2">
+<div>
+<div class="eq">Sol-air:     T_sa = T_o + α·E_t/h_o − ΔR (3.9 K roofs)
+Conduction:  q = U·A·[(T̄_sa − T_i) + f·(T_sa(t−φ) − T̄_sa)]
+Glass:       q = U·A·(T_o−T_i) + A·SHGC·IAC·E_t
+Load(h)    = (1−F_rad)·q(h) + F_rad·Σ r_j·q(h−j)   (RTS)
+Infil.:      Q_s = 1.23·V·ΔT    Q_l = 3010·V·ΔW   (V in L/s)</div>
+<div class="grid g2" style="gap:10px">
+<fieldset><legend>Site & climate</legend>
+<label>Latitude [°N]<input id="lLat" type="number" value="21" step="0.5"></label>
+<label>Month<select id="lMon"></select></label>
+<label>Design DB [°C]<input id="lDB" type="number" value="36" step="0.5"></label>
+<label>Daily range [K]<input id="lDR" type="number" value="7" step="0.5"></label>
+<label>MC wet bulb [°C]<input id="lWB" type="number" value="28" step="0.5"></label>
+<label><span>τb / τd</span><span><input id="lTb" type="number" value="0.45" step="0.05" style="width:52px"> <input id="lTd" type="number" value="2.2" step="0.1" style="width:52px"></span></label>
+</fieldset>
+<fieldset><legend>Room & internal</legend>
+<label>Floor area [m²]<input id="lA" type="number" value="150"></label>
+<label>Height [m]<input id="lH" type="number" value="3" step="0.1"></label>
+<label>Indoor [°C] / RH [%]<span><input id="lTi" type="number" value="24" style="width:52px"> <input id="lRHi" type="number" value="50" style="width:52px"></span></label>
+<label>People (75 S / 55 L W)<input id="lP" type="number" value="15"></label>
+<label>Lighting [W/m²]<input id="lL" type="number" value="9"></label>
+<label>Equipment [W/m²]<input id="lE" type="number" value="12"></label>
+<label>Infiltration [ACH]<input id="lI" type="number" value="0.3" step="0.1"></label>
+<label>Room mass<select id="lM"><option value="0.3">light</option><option value="0.5" selected>medium</option><option value="0.7">heavy</option></select></label>
+</fieldset>
+</div>
+<fieldset><legend>Envelope</legend>
+<div class="tw"><table id="envT"><tr><th>Facade</th><th>Wall m²</th><th>Glass m²</th></tr></table></div>
+<label>Wall U / α / f / lag h<span><input id="wU" type="number" value="0.6" step="0.05" style="width:48px"> <input id="wa" type="number" value="0.6" step="0.05" style="width:48px"> <input id="wf" type="number" value="0.45" step="0.05" style="width:48px"> <input id="wl" type="number" value="7" style="width:40px"></span></label>
+<label>Roof m² / U / α / f / lag<span><input id="rA" type="number" value="150" style="width:52px"> <input id="rU" type="number" value="0.45" step="0.05" style="width:46px"> <input id="ra" type="number" value="0.7" step="0.05" style="width:46px"> <input id="rf" type="number" value="0.35" step="0.05" style="width:46px"> <input id="rl" type="number" value="6" style="width:38px"></span></label>
+<label>Glass U / SHGC / IAC<span><input id="gU" type="number" value="2.8" step="0.1" style="width:52px"> <input id="gS" type="number" value="0.4" step="0.05" style="width:52px"> <input id="gI" type="number" value="0.8" step="0.05" style="width:52px"></span></label>
+</fieldset>
+</div>
+<div>
+<div class="kpi" id="lK"></div>
+<canvas id="lc" height="330"></canvas>
+<div class="leg" id="lLeg"></div>
+<p class="note">Occupied 08–18 h. The equipment load keeps a 15 % base at night. Bars show sensible components and the line shows total (sensible + latent). Default inputs reproduce the README worked example: peak 12.9 kW at hour 17.</p>
+<details><summary class="note">Hourly table</summary><div class="tw"><table id="lT"></table></div></details>
+</div>
+</div>
+</section>
+
+<!-- ================= COIL ================= -->
+<section id="coil">
+<h2>4 · Air-side process: ventilation, supply air, coil</h2>
+<p class="lead">The room peak sets the supply airflow. ASHRAE 62.1 sets the outdoor air. Mixing outdoor and return air gives the coil entering state, and the required supply state gives the leaving state. Extending that line to saturation gives the ADP.</p>
+<div class="grid g2">
+<div>
+<div class="eq">V_bz = R_p·P_z + R_a·A_z        V_oz = V_bz / E_z
+V_sa = Q_s / (ρ·c_p·(T_r − T_s))
+W_s  = W_r − Q_l / (ρ·V_sa·2501000)
+BF   = (t_off − ADP)/(t_on − ADP)
+Q_coil = ṁ·(h_on − h_off)</div>
+<fieldset><legend>Inputs (room load taken from section 3)</legend>
+<label>Space type (62.1)<select id="cSp"></select></label>
+<label>Ez (distribution eff.)<input id="cEz" type="number" value="1.0" step="0.1"></label>
+<label>Supply temp [°C]<input id="cTs" type="number" value="13" step="0.5"></label>
+<label>Fan heat [K]<input id="cFh" type="number" value="0.8" step="0.1"></label>
+</fieldset>
+</div>
+<div><div class="kpi" id="cK"></div><div class="tw"><table id="cT"></table></div><p class="note" id="cMsg"></p></div>
+</div>
+</section>
+
+<!-- ================= DUCT ================= -->
+<section id="duct">
+<h2>5 · Duct sizing (equal friction)</h2>
+<p class="lead">Friction is found with Darcy–Weisbach and the Colebrook equation. The method solves the exact diameter for the target friction, rounds it up to a standard size, and converts it to a rectangular duct of equal friction (Huebscher).</p>
+<div class="grid g2">
+<div>
+<div class="eq">Δp/L = f/D · ρV²/2      1/√f = −2·log10(ε/3.7D + 2.51/(Re√f))
+D_e  = 1.30·(a·b)^0.625 / (a+b)^0.25
+Fitting Δp = C·ρV²/2     Fan ΔP = index path + AHU internals</div>
+<fieldset><legend>Section</legend>
+<label>Airflow [L/s]<input id="dQ" type="number" value="812"></label>
+<label>Target friction [Pa/m]<input id="dR" type="number" value="1.0" step="0.1"></label>
+<label>Max velocity [m/s]<input id="dV" type="number" value="8" step="0.5"></label>
+<label>Rect. height [mm]<input id="dH" type="number" value="250" step="50"></label>
+<label>Material<select id="dM"><option value="0.09">Galvanised steel</option><option value="0.05">Aluminium</option><option value="0.9">Fibreglass board</option><option value="3">Flex duct</option></select></label>
+<label>Length [m] / ΣC<span><input id="dL" type="number" value="10" style="width:52px"> <input id="dC" type="number" value="1.2" step="0.1" style="width:52px"></span></label>
+</fieldset>
+</div>
+<div><div class="kpi" id="dK"></div>
+<h3>Recommended velocities (offices, NC 35)</h3>
+<table><tr><th>Section</th><th>m/s</th></tr><tr><td>Main supply</td><td>5–8</td></tr><tr><td>Branch</td><td>3–5</td></tr><tr><td>Run-out</td><td>2–3</td></tr><tr><td>Coil face</td><td>2.0–2.5</td></tr><tr><td>Return grille face</td><td>1.5–2.5</td></tr></table></div>
+</div>
+</section>
+
+<!-- ================= PIPE ================= -->
+<section id="pipe">
+<h2>6 · Pipe sizing & plant</h2>
+<p class="lead">Water flow comes from the load and the design ΔT. The sizer picks the smallest Sch.40 steel pipe within the friction and velocity limits. The plant is sized on the coincident (block) load.</p>
+<div class="grid g2">
+<div>
+<div class="eq">V̇ = Q / (ρ·c_p·ΔT)          1 kW @ 5.5 K → 0.0434 L/s
+Q_reject = Q_evap·(1 + 1/COP)
+P_pump = V̇·Δp / (η_p·η_m)      P_fan = V̇·Δp_t / (η_f·η_m·η_d)
+Affinity: V̇ ∝ n,  Δp ∝ n²,  P ∝ n³</div>
+<fieldset><legend>Inputs</legend>
+<label>Load [kW]<input id="xQ" type="number" value="768"></label>
+<label>CHW ΔT [K]<input id="xDT" type="number" value="5.5" step="0.5"></label>
+<label>Max friction [Pa/m]<input id="xR" type="number" value="400" step="50"></label>
+<label>Max velocity [m/s]<input id="xV" type="number" value="3" step="0.1"></label>
+<label>Chiller COP<input id="xC" type="number" value="5.5" step="0.1"></label>
+<label>Pump head [kPa]<input id="xH" type="number" value="250" step="10"></label>
+</fieldset>
+</div>
+<div><div class="kpi" id="xK"></div><div class="tw"><table id="xT"></table></div></div>
+</div>
+</section>
+
+<!-- ================= BOM ================= -->
+<section id="bom">
+<h2>7 · Equipment schedule & bill of materials</h2>
+<p class="lead">This turns the design into items you can buy. Each item gets a quantity and the duty and spec to send to suppliers for quotation. It updates live from sections 3–6. Download the CSV and add unit prices; the <code>amount</code> column calculates in Excel. The engine (<code>zone_bom</code>, <code>plant_bom</code>) also adds the full ductwork take-off: sheet metal kg by thickness, insulation, dampers and supports.</p>
+<div class="grid g3">
+<fieldset><legend>Project</legend>
+<label>Number of identical zones<input id="bN" type="number" value="40"></label>
+<label>Number of chillers<input id="bC" type="number" value="2"></label>
+<label>Design WB for tower [°C]<input id="bWB" type="number" value="28"></label>
+</fieldset>
+<fieldset><legend>Zone piping</legend>
+<label>CHW run to AHU [m]<input id="bL" type="number" value="15"></label>
+<label>Coil water Δp [kPa]<input id="bDp" type="number" value="40"></label>
+<label>System water [L/kW]<input id="bV" type="number" value="8"></label>
+</fieldset>
+<div><button id="bCsv" style="padding:8px 14px;border-radius:6px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;font:inherit">⬇ Download BOM (CSV)</button>
+<p class="note">Prices are not included on purpose, because they change with market and time. Use current quotations and compare at least 3 offers on the same duty point. README §21 lists example manufacturers, and §22 lists installation tools and TAB instruments.</p></div>
+</div>
+<div class="tw"><table id="bT"></table></div>
+</section>
+
+<!-- ================= ENGINE ================= -->
+<section id="engine">
+<h2>8 · Python engine — <code>hvac_engine.py</code></h2>
+<p class="lead">It uses the Python standard library only (math, dataclasses), so it runs offline. Run <code>python hvac_engine.py</code> to print the full worked example. Import it to use it in your own scripts.</p>
+<svg viewBox="0 0 1000 368" width="100%" role="img" aria-label="Engine module map" id="mm"></svg>
+<div class="grid g2">
+<div>
+<h3>Data model</h3>
+<pre>Site(latitude, longitude, tz, altitude, tau_b, tau_d)
+Zone(name, floor_area, height, t_in, rh_in,
+     walls=[Opaque(...)], windows=[Window(...)],
+     people, lighting_wpm2, equipment_wpm2,
+     schedule[24], infiltration_ach, construction)
+Opaque(name, area, U, tilt, azimuth, absorptance,
+       decrement, lag_h)        # tilt 90 wall, 0 roof
+Window(name, area, U, SHGC, azimuth, shade_coeff)
+AirState(t, w, p)  .h .rh .twb .tdp .v .rho
+DuctSection(name, flow, length, sum_C, upstream)</pre>
+<h3>Typical script</h3>
+<pre>from hvac_engine import *
+site = Site(21.0, 105.8, 7)
+z = Zone("Office", 150, 3.0, people=15)
+z.walls.append(Opaque("W", 18, 0.6, 90, 90))
+z.windows.append(Window("Wg", 12, 2.8, 0.4, 90))
+r  = cooling_load(z, site, 202, 36, 7, 28)
+h  = r["peak_hour"]
+Qs, Ql = r["sensible"][h], r["latent"][h]
+V  = supply_airflow(Qs, 24, 13)
+_, Voz = outdoor_air("office", 150, 15)</pre>
+</div>
+<div>
+<h3>Algorithm of <code>cooling_load()</code></h3>
+<ol class="note" style="font-size:13.5px">
+<li>Build 24 hourly outdoor states: <code>T = T_DB − f(h)·DR</code>, with W fixed from the MCWB.</li>
+<li>For each hour, compute the solar position and the ASHRAE clear-sky beam and diffuse irradiance, then the irradiance on each surface.</li>
+<li>Opaque surfaces: sol-air temperature, then the decrement/time-lag conduction profile.</li>
+<li>Glass: conduction plus SHGC × irradiance × IAC.</li>
+<li>Internal gains × the occupancy schedule.</li>
+<li>Split each component into radiant and convective parts, then convolve the radiant part with the radiant time series (24-hour periodic).</li>
+<li>Sum the sensible components and add the latent part (people + infiltration). The peak hour is the hour with the maximum total.</li>
+</ol>
+<h3>Accuracy notes</h3>
+<ul class="note" style="font-size:13.5px">
+<li>The RTS is a smooth geometric approximation. Replace it with the ASHRAE tabulated factors for certified work.</li>
+<li>Run several months. In the tropics, south façades can peak outside July.</li>
+<li>Sizing an AHU or plant needs the hour-by-hour sum across zones (block load), not the sum of zone peaks.</li>
+</ul>
+</div>
+</div>
+</section>
+<p class="note" style="text-align:center">Offline single-file guide · no external libraries · companion to README.md and hvac_engine.py</p>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id), R=Math.PI/180;
+/* ---------- theme ---------- */
+$("theme").onclick=()=>{const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+ d.dataset.theme=dark?"light":"dark";try{localStorage.hvacTheme=d.dataset.theme}catch(e){}drawAll()};
+try{if(localStorage.hvacTheme)document.documentElement.dataset.theme=localStorage.hvacTheme}catch(e){}
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- psychrometrics (port of engine) ---------- */
+const P0=z=>101.325*Math.pow(1-2.25577e-5*z,5.2559);
+function pws(t){const T=t+273.15;let l;
+ if(t>=0)l=-5.8002206e3/T+1.3914993-4.8640239e-2*T+4.1764768e-5*T*T-1.4452093e-8*T**3+6.5459673*Math.log(T);
+ else l=-5.6745359e3/T+6.3925247-9.677843e-3*T+6.2215701e-7*T*T+2.0747825e-9*T**3-9.484024e-13*T**4+4.1635019*Math.log(T);
+ return Math.exp(l)/1000}
+const wPw=(pw,p)=>0.621945*pw/(p-pw), pwW=(w,p)=>p*w/(0.621945+w), wSat=(t,p)=>wPw(pws(t),p);
+const wWb=(t,b,p)=>((2501-2.326*b)*wSat(b,p)-1.006*(t-b))/(2501+1.86*t-4.186*b);
+const H=(t,w)=>1.006*t+w*(2501+1.86*t), tHW=(h,w)=>(h-2501*w)/(1.006+1.86*w);
+const V=(t,w,p)=>0.287042*(t+273.15)*(1+1.607858*w)/p;
+function bis(f,a,b){let fa=f(a);for(let i=0;i<200;i++){const m=(a+b)/2,fm=f(m);if(Math.abs(fm)<1e-9||b-a<1e-7)return m;if((fm>0)===(fa>0)){a=m;fa=fm}else b=m}return(a+b)/2}
+const tDp=(w,p)=>bis(t=>pws(t)-pwW(w,p),-60,100), tWb=(t,w,p)=>bis(b=>wWb(t,b,p)-w,-60,t);
+function St(t,w,p){return{t,w,p,h:H(t,w),rh:pwW(w,p)/pws(t),v:V(t,w,p),get twb(){return tWb(t,w,p)},get tdp(){return tDp(w,p)}}}
+const mixS=(a,ma,b,mb)=>{const w=(ma*a.w+mb*b.w)/(ma+mb),h=(ma*a.h+mb*b.h)/(ma+mb);return St(tHW(h,w),w,a.p)};
+const f1=(x,n=1)=>Number(x).toFixed(n), num=id=>parseFloat($(id).value)||0;
+
+/* ---------- workflow diagram ---------- */
+const STEPS=[
+["1 Brief & zoning","Plans, use, schedules","Group spaces with the same orientation, use and schedule into thermal zones. Separate perimeter (≈ 4–5 m deep) from interior.","—"],
+["2 Design conditions","Climate data, ASHRAE 55","Outdoor 0.4 % DB + MCWB + daily range; 0.4 % DP for dehumidification; 99.6 % DB for heating. Indoor 24 °C / 50 %.","AirState, outdoor_profile"],
+["3 Envelope","Wall, roof, glass build-up","U = 1/ΣR, SHGC, absorptance α, decrement f and time lag φ.","Opaque, Window"],
+["4 Zone loads","Zones + gains","Hourly sol-air conduction, solar, internal gains, infiltration, radiant time delay → peak hour of each zone.","cooling_load, heating_load"],
+["5 Ventilation","Occupancy, area","ASHRAE 62.1: Vbz = Rp·Pz + Ra·Az, Voz = Vbz/Ez; multizone Ev; exhaust & pressurisation.","outdoor_air, system_oa_multizone"],
+["6 Air process","Loads, supply ΔT, OA","Supply airflow, mixed state, coil leaving state, ADP, bypass factor, coil load and condensate.","supply_airflow, mix, coil_adp_bf, coil_load"],
+["7 Ducts & fans","Layout, flows","Equal friction 0.8–1.2 Pa/m, standard sizes, index path → ESP → fan selection, SFP.","size_duct_network, fan_power"],
+["8 Pipes & pumps","Coil loads, ΔT","CHW 6/12 °C, 100–400 Pa/m, velocity ≤ 3 m/s, index circuit → pump head, valve authority.","water_flow, size_pipe, pump_power"],
+["9 Central plant","Block (coincident) load","Chillers (N+1, part-load split), towers (Q·(1+1/COP)), boilers, storage.","plant_sizing"],
+["10 Controls & Cx","Sequence of operation","SAT, static pressure, CHW ΔP, OA/DCV, pressurisation loops; TAB and commissioning.","see README §16"]];
+(function(){const s=$("wfsvg");let g="";const w=176,h=58;
+ STEPS.forEach((st,i)=>{const r=i<5?0:1,c=r?9-i:i,x=12+c*197,y=18+r*104;
+  g+=`<g class="step" data-i="${i}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/><text x="${x+w/2}" y="${y+24}" text-anchor="middle" font-weight="600">${st[0]}</text><text x="${x+w/2}" y="${y+42}" text-anchor="middle" style="fill:var(--mut);font-size:11px">${st[1]}</text></g>`;
+  if(i<9){if(i===4)g+=`<path d="M${x+w/2} ${y+h} v38" stroke="var(--acc)" stroke-width="2" marker-end="url(#ar)"/>`;
+   else if(r===0)g+=`<path d="M${x+w} ${y+h/2} h14" stroke="var(--acc)" stroke-width="2" marker-end="url(#ar)"/>`;
+   else g+=`<path d="M${x} ${y+h/2} h-14" stroke="var(--acc)" stroke-width="2" marker-end="url(#ar)"/>`}});
+ s.innerHTML=`<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker></defs>`+g;
+ const show=i=>{s.querySelectorAll(".step").forEach(e=>e.classList.toggle("on",+e.dataset.i===i));const st=STEPS[i];
+  $("stepInfo").innerHTML=`<h3 style="margin:8px 0 4px">${st[0]}</h3><b>Input:</b> ${st[1]}<br><b>Method:</b> ${st[2]}<br><b>Engine:</b> <code>${st[3]}</code>`};
+ s.querySelectorAll(".step").forEach(e=>e.onclick=()=>show(+e.dataset.i));show(3)})();
+
+/* ---------- module map ---------- */
+(function(){const M=[["Psychrometrics","AirState · mix · p_ws · dew_point · wet_bulb"],["Climate & solar","Site · solar_position · clear_sky · surface_irradiance"],["Cooling load","Zone · Opaque · Window · sol_air · RTS · cooling_load"],
+["Heating & ventilation","heating_load · outdoor_air · system_oa_multizone"],["Air process","supply_airflow · supply_humidity · coil_adp_bf · coil_load"],["Duct","friction_factor · dp_per_m · size_duct_network"],["Pipe","water_density · water_viscosity · size_pipe"],["Plant & power","plant_sizing · fan_power · pump_power · fan_laws"],["Equipment & BOM","zone_bom · plant_bom · control_valve_kv · bom_to_csv"],["Coil design (Part C)","CoilGeometry · rate_coil · design_coil · fin_efficiency"],["Heat transfer","lmtd · eff_counterflow · nu_tube · insulation_condensation"],["Pumps · sound · vibration","npsh_available · vapour_compression · room_spl · vibration_isolation"]];
+ let g="";M.forEach((m,i)=>{const c=i%4,r=Math.floor(i/4),x=10+c*248,y=14+r*118;
+ g+=`<rect x="${x}" y="${y}" width="232" height="96" rx="8" fill="var(--code)" stroke="var(--line)"/><text x="${x+12}" y="${y+26}" font-weight="600">${i+1}. ${m[0]}</text>`;
+ m[1].split(" · ").forEach((f,j)=>g+=`<text x="${x+12}" y="${y+46+j*14}" style="font:11px Consolas,monospace;fill:var(--mut)">${f}</text>`)});
+ $("mm").innerHTML=g})();
+
+/* ---------- psychro calculator ---------- */
+let calcPt=null, proc=null;
+function psyCalc(){const p=P0(num("pZ")),t=num("pT"),v=num("pV"),m=$("pMode").value;let w;
+ if(m==="wb")w=wWb(t,Math.min(v,t),p);else if(m==="rh")w=wPw(v/100*pws(t),p);else if(m==="dp")w=wPw(pws(Math.min(v,t)),p);else w=v/1000;
+ const s=St(t,w,p);calcPt=s;
+ const rows=[["Pressure p",f1(p,3),"kPa"],["Dry bulb",f1(t,2),"°C"],["Wet bulb",f1(s.twb,2),"°C"],["Dew point",f1(s.tdp,2),"°C"],["Relative humidity",f1(s.rh*100,1),"%"],["Humidity ratio W",f1(w*1000,2),"g/kg"],["Enthalpy h",f1(s.h,2),"kJ/kg"],["Specific volume v",f1(s.v,4),"m³/kg"],["Density ρ",f1((1+w)/s.v,4),"kg/m³"],["Vapour pressure p_w",f1(pwW(w,p),3),"kPa"],["Sat. pressure p_ws",f1(pws(t),3),"kPa"]];
+ $("pOut").innerHTML="<tr><th>Property</th><th>Value</th><th>Unit</th></tr>"+rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+ drawChart()}
+["pT","pV","pZ","pMode"].forEach(i=>$(i).addEventListener("input",psyCalc));
+$("pMode").addEventListener("change",()=>{const d={wb:28,rh:55,dp:25,w:20};$("pV").value=d[$("pMode").value];psyCalc()});
+
+function fitCanvas(c){const r=c.getBoundingClientRect(),d=devicePixelRatio||1,h=+c.getAttribute("height");c.width=r.width*d;c.height=h*d;c.style.height=h+"px";const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return[x,r.width,h]}
+function drawChart(){const c=$("chart"),[x,W,Hh]=fitCanvas(c),p=101.325,L=44,Rm=46,T=12,B=34,tx=t=>L+(t/50)*(W-L-Rm),wy=w=>Hh-B-(w/30)*(Hh-B-T);
+ const fg=css("--fg"),mut=css("--mut"),ln=css("--line");x.font="11px system-ui";x.lineWidth=1;
+ x.strokeStyle=ln;x.fillStyle=mut;
+ for(let t=0;t<=50;t+=5){x.beginPath();x.moveTo(tx(t),wy(0));x.lineTo(tx(t),wy(Math.min(30,wSat(t,p)*1000)));x.stroke();x.fillText(t,tx(t)-6,Hh-B+14)}
+ for(let w=0;w<=30;w+=5){x.beginPath();x.moveTo(tx(0),wy(w));x.lineTo(tx(50),wy(w));x.stroke();x.fillText(w,W-Rm+6,wy(w)+4)}
+ x.fillText("Dry bulb °C",W/2-30,Hh-4);x.save();x.translate(W-8,Hh/2+30);x.rotate(-Math.PI/2);x.fillText("W g/kg",0,0);x.restore();
+ // enthalpy lines
+ x.setLineDash([3,3]);for(let h=10;h<=110;h+=10){x.beginPath();let first=true;for(let t=-5;t<=50;t+=1){const w=(h-1.006*t)/(2501+1.86*t);if(w<0||w>wSat(t,p))continue;const X=tx(t),Y=wy(w*1000);if(Y<T)continue;first?x.moveTo(X,Y):x.lineTo(X,Y);first=false}x.stroke();
+  const t0=bis(t=>(h-1.006*t)/(2501+1.86*t)-wSat(t,p),-10,50);if(t0>0&&wSat(t0,p)*1000<30)x.fillText(h,tx(t0)-16,wy(wSat(t0,p)*1000)-2)}x.setLineDash([]);
+ // RH lines
+ for(let rh=10;rh<=100;rh+=10){x.beginPath();x.strokeStyle=rh===100?fg:ln;x.lineWidth=rh===100?2:1;let lx=0,ly=0;
+  for(let t=0;t<=50;t+=0.5){const w=wPw(rh/100*pws(t),p)*1000;if(w>30)break;const X=tx(t),Y=wy(w);t?x.lineTo(X,Y):x.moveTo(X,Y);lx=X;ly=Y}x.stroke();if(rh<100&&rh%20===0){x.fillStyle=mut;x.fillText(rh+"%",lx-24,ly-3)}}
+ x.lineWidth=1;
+ const dot=(s,col,lab)=>{if(!s)return;const X=tx(s.t),Y=wy(s.w*1000);x.fillStyle=col;x.beginPath();x.arc(X,Y,5,0,7);x.fill();x.fillStyle=fg;x.font="600 12px system-ui";x.fillText(lab,X+7,Y-6);x.font="11px system-ui"};
+ const seg=(a,b,col,d)=>{x.strokeStyle=col;x.lineWidth=2;x.setLineDash(d?[5,4]:[]);x.beginPath();x.moveTo(tx(a.t),wy(a.w*1000));x.lineTo(tx(b.t),wy(b.w*1000));x.stroke();x.setLineDash([]);x.lineWidth=1};
+ if(proc){const {o,r,m,c,s,adp}=proc,A=St(adp,wSat(adp,p),p);seg(o,m,css("--c2"));seg(r,m,css("--c1"));seg(m,c,css("--c3"));seg(c,A,css("--c8"),1);seg(c,s,css("--c5"));seg(s,r,css("--c1"),1);
+  dot(o,css("--c2"),"O");dot(r,css("--c1"),"R");dot(m,css("--c4"),"M");dot(c,css("--c3"),"C");dot(s,css("--c3"),"S");dot(A,css("--c8"),"ADP")}
+ dot(calcPt,css("--c7"),"●")}
+
+/* ---------- solar & load (port of engine) ---------- */
+const FR=[.87,.92,.96,.99,1,.98,.93,.84,.71,.56,.39,.23,.11,.03,0,.03,.10,.21,.34,.47,.58,.68,.76,.82];
+const MDAY=[21,52,80,111,141,172,202,233,264,294,325,355];
+function sunPos(lat,n,hr){const d=23.45*Math.sin(R*360*(284+n)/365),Hd=15*(hr-12),Lr=lat*R,dr=d*R,Hr=Hd*R;
+ const b=Math.asin(Math.max(-1,Math.min(1,Math.cos(Lr)*Math.cos(dr)*Math.cos(Hr)+Math.sin(Lr)*Math.sin(dr)))),cb=Math.cos(b);
+ if(cb<1e-9)return[b/R,0];return[b/R,Math.atan2(Math.sin(Hr)*Math.cos(dr)/cb,(Math.cos(Hr)*Math.cos(dr)*Math.sin(Lr)-Math.sin(dr)*Math.cos(Lr))/cb)/R]}
+function clearSky(n,beta,tb,td){if(beta<=0)return[0,0];const E0=1367*(1+0.033*Math.cos(R*360*(n-3)/365)),m=1/(Math.sin(beta*R)+0.50572*Math.pow(6.07995+beta,-1.6364));
+ const ab=1.454-0.406*tb-0.268*td+0.021*tb*td,ad=0.507+0.205*tb-0.080*td-0.190*tb*td;return[E0*Math.exp(-tb*Math.pow(m,ab)),E0*Math.exp(-td*Math.pow(m,ad))]}
+function irr(S,n,hr,tilt,az){const[b,ph]=sunPos(S.lat,n,hr);if(b<=0)return 0;const[Eb,Ed]=clearSky(n,b,S.tb,S.td),s=tilt*R,B=b*R,G=(ph-az)*R;
+ const ct=Math.cos(B)*Math.cos(G)*Math.sin(s)+Math.sin(B)*Math.cos(s),Y=Math.max(0.45,0.55+0.437*ct+0.313*ct*ct);
+ return Eb*Math.max(0,ct)+Ed*(Y*Math.sin(s)+Math.cos(s))+(Eb*Math.sin(B)+Ed)*0.2*(1-Math.cos(s))/2}
+function rts(a){const r=[];let s=0;for(let j=0;j<24;j++){r.push((1-a)*a**j);s+=r[j]}return r.map(v=>v/s)}
+const applyR=(g,fr,r)=>g.map((v,h)=>{let rad=0;for(let j=0;j<24;j++)rad+=r[j]*g[(h-j+24)%24];return v*(1-fr)+rad*fr});
+const FAC=[["N",180],["E",-90],["S",0],["W",90]], ENV0={N:[0,0],E:[0,0],S:[27,18],W:[18,12]};
+FAC.forEach(([f])=>{$("envT").insertAdjacentHTML("beforeend",`<tr><td>${f}</td><td><input id="fw${f}" type="number" value="${ENV0[f][0]}" style="width:70px"></td><td><input id="fg${f}" type="number" value="${ENV0[f][1]}" style="width:70px"></td></tr>`)});
+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].forEach((m,i)=>$("lMon").insertAdjacentHTML("beforeend",`<option value="${i}"${i===6?" selected":""}>${m}</option>`));
+const COMP=[["walls","Walls","--c8"],["roof","Roof","--c6"],["gc","Glass cond.","--c4"],["solar","Solar","--c5"],["people","People","--c2"],["light","Lighting","--c3"],["equip","Equipment","--c1"],["inf","Infiltration","--c7"]];
+let LR=null;
+function calcLoad(){const S={lat:num("lLat"),tb:num("lTb"),td:num("lTd")},n=MDAY[+$("lMon").value],p=P0(10),DB=num("lDB"),DR=num("lDR"),WB=num("lWB"),Ti=num("lTi"),A=num("lA");
+ const wo=wWb(DB,WB,p),To=FR.map(f=>DB-f*DR),room=St(Ti,wPw(num("lRHi")/100*pws(Ti),p),p),r=rts(num("lM")),hrs=[...Array(24)].map((_,h)=>h+.5),sch=hrs.map(h=>h>8&&h<18?1:0);
+ const cond=(area,U,tilt,az,al,f,lag)=>{const tsa=hrs.map((hr,h)=>To[h]+al*irr(S,n,hr,tilt,az)/17-(tilt<45?3.9:0)),mn=tsa.reduce((a,b)=>a+b)/24;return tsa.map((_,h)=>U*area*((mn-Ti)+f*(tsa[(h-lag+24)%24]-mn)))};
+ const add=(a,b)=>a.map((v,i)=>v+b[i]),Z=()=>Array(24).fill(0);let wl=Z(),gc=Z(),gs=Z();
+ FAC.forEach(([f,az])=>{const aw=num("fw"+f),ag=num("fg"+f);if(aw>0)wl=add(wl,cond(aw,num("wU"),90,az,num("wa"),num("wf"),Math.round(num("wl"))));
+  if(ag>0){gc=add(gc,To.map(t=>num("gU")*ag*(t-Ti)));gs=add(gs,hrs.map(hr=>ag*num("gS")*num("gI")*irr(S,n,hr,90,az)))}});
+ const rf=num("rA")>0?cond(num("rA"),num("rU"),0,0,num("ra"),num("rf"),Math.round(num("rl"))):Z(),P=num("lP"),q=num("lI")*A*num("lH")/3600,rho=(1+room.w)/room.v;
+ const C={walls:applyR(wl,.46,r),roof:applyR(rf,.60,r),gc:applyR(gc,.46,r),solar:applyR(gs,.90,r),people:applyR(sch.map(s=>P*75*s),.6,r),light:applyR(sch.map(s=>num("lL")*A*s),.57,r),
+  equip:applyR(sch.map(s=>num("lE")*A*(0.15+0.85*s)),.2,r),inf:To.map(t=>q*rho*1006*(t-Ti))};
+ const sens=Z().map((_,h)=>COMP.reduce((a,[k])=>a+C[k][h],0)),lat=sch.map(s=>P*55*s+q*rho*2501e3*Math.max(0,wo-room.w)),tot=sens.map((s,h)=>s+lat[h]);
+ let ph=0;tot.forEach((v,h)=>{if(v>tot[ph])ph=h});
+ LR={C,sens,lat,tot,ph,To,room,oa:St(DB,wo,p),A,P,p};
+ $("lK").innerHTML=`<div><b>${f1(tot[ph]/1000,2)} kW</b><span>Peak total @ hour ${ph+1}</span></div><div><b>${f1(sens[ph]/1000,2)} kW</b><span>Sensible</span></div><div><b>${f1(lat[ph]/1000,2)} kW</b><span>Latent</span></div><div><b>${f1(sens[ph]/tot[ph],2)}</b><span>RSHR</span></div><div><b>${f1(tot[ph]/A,0)} W/m²</b><span>${f1(A/(tot[ph]/1000),1)} m²/kW · ${f1(tot[ph]/3517,2)} TR</span></div>`;
+ $("lT").innerHTML="<tr><th>h</th><th>T<sub>o</sub></th>"+COMP.map(c=>`<th>${c[1]}</th>`).join("")+"<th>Sens</th><th>Lat</th><th>Total</th></tr>"+
+  To.map((t,h)=>`<tr${h===ph?' style="font-weight:700"':""}><td>${h+1}</td><td>${f1(t)}</td>`+COMP.map(([k])=>`<td>${f1(C[k][h],0)}</td>`).join("")+`<td>${f1(sens[h],0)}</td><td>${f1(lat[h],0)}</td><td>${f1(tot[h],0)}</td></tr>`).join("");
+ $("lLeg").innerHTML=COMP.map(c=>`<span><i style="background:var(${c[2]})"></i>${c[1]}</span>`).join("")+`<span><i style="background:var(--fg);height:2px"></i>Total</span>`;
+ drawLoad();calcCoil()}
+function drawLoad(){if(!LR)return;const c=$("lc"),[x,W,Hh]=fitCanvas(c),L=44,B=26,T=10,mx=Math.max(...LR.tot)*1.1,mn=Math.min(0,...COMP.map(([k])=>Math.min(...LR.C[k])));
+ const y=v=>T+(mx-v)/(mx-mn)*(Hh-B-T),bw=(W-L-8)/24;x.font="11px system-ui";x.fillStyle=css("--mut");x.strokeStyle=css("--line");
+ const raw=mx/5,mag=10**Math.floor(Math.log10(raw)),step=[1,2,5,10].map(k=>k*mag).find(v=>v>=raw);
+ for(let v=0;v<=mx;v+=step){x.beginPath();x.moveTo(L,y(v));x.lineTo(W,y(v));x.stroke();x.fillText(f1(v/1000,1),4,y(v)+4)}
+ x.fillText("kW",4,T+4);
+ for(let h=0;h<24;h++){let pos=0,neg=0;COMP.forEach(([k,,col])=>{const v=LR.C[k][h];x.fillStyle=css(col);if(v>=0){x.fillRect(L+h*bw+2,y(pos+v),bw-4,y(pos)-y(pos+v));pos+=v}else{x.fillRect(L+h*bw+2,y(neg),bw-4,y(neg+v)-y(neg));neg+=v}});
+  if((h+1)%3===0){x.fillStyle=css("--mut");x.fillText(h+1,L+h*bw+bw/2-6,Hh-8)}}
+ x.strokeStyle=css("--fg");x.lineWidth=2;x.beginPath();LR.tot.forEach((v,h)=>{const X=L+h*bw+bw/2;h?x.lineTo(X,y(v)):x.moveTo(X,y(v))});x.stroke();x.lineWidth=1;
+ const X=L+LR.ph*bw+bw/2;x.fillStyle=css("--acc2");x.beginPath();x.arc(X,y(LR.tot[LR.ph]),4,0,7);x.fill()}
+document.querySelectorAll("#load input,#load select").forEach(e=>e.addEventListener("input",calcLoad));
+$("envT").addEventListener("input",calcLoad);
+
+/* ---------- coil ---------- */
+const SP={office:[2.5,.3],conference:[2.5,.3],reception:[2.5,.3],classroom_9plus:[3.8,.6],lecture_hall:[3.8,.3],retail_sales:[3.8,.6],restaurant_dining:[3.8,.9],hotel_bedroom:[2.5,.3],health_club:[10,.3],lobby:[2.5,.3]};
+Object.keys(SP).forEach(k=>$("cSp").insertAdjacentHTML("beforeend",`<option>${k}</option>`));
+function calcCoil(){if(!LR)return;const {sens,lat,ph,room:r,oa:o,A,P,p}=LR,Qs=sens[ph],Ql=lat[ph],[Rp,Ra]=SP[$("cSp").value],Vbz=Rp*P+Ra*A,Voz=Vbz/num("cEz");
+ const Ts=num("cTs"),rho=(1+r.w)/r.v,Vsa=Qs/(rho*1026*(r.t-Ts)),ws=r.w-Ql/(rho*Vsa*2501e3),s=St(Ts,ws,p),x=Math.min(1,Voz/1000/Vsa),m=mixS(o,x,r,1-x),c=St(Ts-num("cFh"),ws,p);
+ let msg="";if(ws>=wSat(c.t,p)){msg="⚠ Off-coil state is above saturation. Raise the supply ΔT or add reheat/DOAS.";proc=null;$("cMsg").innerHTML=`<span class="bad">${msg}</span>`;drawChart();return}
+ const xF=bis(k=>(c.w+k*(c.w-m.w))-wSat(c.t+k*(c.t-m.t),p),0,5),adp=c.t+xF*(c.t-m.t),bf=(c.t-adp)/(m.t-adp),ma=Vsa/m.v,Qc=ma*(m.h-c.h)*1000,Qcs=ma*(1.006+1.86*m.w)*(m.t-c.t)*1000,cond=ma*(m.w-c.w)*3600;
+ proc={o,r,m,c,s,adp};CO={Vsa,Voz,Qc,Qcs,m,c,cond,A};
+ $("cK").innerHTML=`<div><b>${f1(Vsa*1000,0)} L/s</b><span>Supply air (${f1(Vsa*1000/A,1)} L/s·m²)</span></div><div><b>${f1(Voz,1)} L/s</b><span>Outdoor air (${f1(x*100,1)} %)</span></div><div><b>${f1(Qc/1000,2)} kW</b><span>Coil total · SHR ${f1(Qcs/Qc,2)}</span></div><div><b>${f1(adp,1)} °C</b><span>ADP · BF ${f1(bf,3)}</span></div>`;
+ const row=(n,st)=>`<tr><td>${n}</td><td>${f1(st.t)}</td><td>${f1(st.twb)}</td><td>${f1(st.rh*100,0)}</td><td>${f1(st.w*1000,2)}</td><td>${f1(st.h,1)}</td></tr>`;
+ $("cT").innerHTML="<tr><th>State</th><th>DB</th><th>WB</th><th>RH%</th><th>W g/kg</th><th>h kJ/kg</th></tr>"+row("O Outdoor",o)+row("R Room",r)+row("M Mixed",m)+row("C Off-coil",c)+row("S Supply",s);
+ msg=`Vbz = ${Rp}·${P} + ${Ra}·${A} = ${f1(Vbz,1)} L/s. Condensate ${f1(cond,2)} kg/h. `+(adp<8?'<span class="bad">ADP below 8 °C: hard to reach with 6 °C CHW. Consider reheat, DOAS or a higher supply temperature.</span>':'<span class="ok">ADP is achievable with 6/12 °C CHW (BF '+f1(bf,2)+'; a typical rating gives 6–8 rows; see engine design_coil and README §C1).</span>');
+ $("cMsg").innerHTML=msg;$("dQ").value=Math.round(Vsa*1000);calcDuct();drawChart();calcBom()}
+["cSp","cEz","cTs","cFh"].forEach(i=>$(i).addEventListener("input",calcCoil));
+
+/* ---------- duct ---------- */
+function ff(Re,rr){if(Re<2300)return 64/Re;let f=0.25/Math.log10(rr/3.7+5.74/Re**0.9)**2;for(let i=0;i<20;i++)f=(-2*Math.log10(rr/3.7+2.51/(Re*Math.sqrt(f))))**-2;return f}
+const dpm=(Q,D,rho,nu,e)=>{const v=Q/(Math.PI*D*D/4);return ff(v*D/nu,e/D)/D*rho*v*v/2};
+const STD=[100,125,160,200,250,315,355,400,450,500,560,630,710,800,900,1000,1120,1250,1400,1600], De=(a,b)=>1.3*(a*b)**.625/(a+b)**.25;
+function calcDuct(){const Q=num("dQ")/1000,Rt=num("dR"),e=num("dM")/1000,vm=num("dV"),Hh=num("dH")/1000;if(Q<=0)return;
+ const Dx=bis(D=>Rt-dpm(Q,D,1.2,1.53e-5,e),0.02,5),Dv=Math.sqrt(4*Q/(Math.PI*vm)),Dn=Math.max(Dx,Dv),Ds=(STD.find(d=>d/1000>=Dn)||1600)/1000,v=Q/(Math.PI*Ds*Ds/4),Rr=dpm(Q,Ds,1.2,1.53e-5,e);
+ let w=0.05;while(De(w,Hh)<Ds&&w<10)w+=0.05;const dp=Rr*num("dL")+num("dC")*0.6*v*v;
+ $("dK").innerHTML=`<div><b>${f1(Dx*1000,0)} mm</b><span>Exact Ø for ${Rt} Pa/m</span></div><div><b>Ø ${f1(Ds*1000,0)}</b><span>Standard round</span></div><div><b>${f1(w*1000,0)}×${f1(Hh*1000,0)}</b><span>Rect. equivalent (AR ${f1(w/Hh,1)})</span></div><div><b>${f1(v,2)} m/s</b><span>Velocity · p<sub>v</sub> ${f1(0.6*v*v,1)} Pa</span></div><div><b>${f1(Rr,2)} Pa/m</b><span>Actual friction</span></div><div><b>${f1(dp,1)} Pa</b><span>Section Δp</span></div>`}
+["dQ","dR","dV","dH","dM","dL","dC"].forEach(i=>$(i).addEventListener("input",calcDuct));
+
+/* ---------- pipe & plant ---------- */
+const SCH={15:15.8,20:20.9,25:26.6,32:35.1,40:40.9,50:52.5,65:62.7,80:77.9,100:102.3,125:128.2,150:154.1,200:202.7,250:254.5,300:303.2,350:333.4,400:381};
+const rhoW=t=>1000*(1-(t+288.9414)/(508929.2*(t+68.12963))*(t-3.9863)**2), muW=t=>2.414e-5*10**(247.8/(t+273.15-140));
+function calcPipe(){const Q=num("xQ")*1000,dT=num("xDT"),cop=num("xC"),rho=rhoW(9),mu=muW(9),fl=Q/(rho*4190*dT),rej=Q*(1+1/cop),cw=rej/(rhoW(32)*4190*5);
+ let sel=null,rows="";for(const [dn,id] of Object.entries(SCH)){const D=id/1000,v=fl/(Math.PI*D*D/4),Rr=dpm(fl,D,rho,mu/rho,4.5e-5),ok=Rr<=num("xR")&&v<=num("xV");if(ok&&!sel)sel=dn;
+  if(v<6&&v>0.3)rows+=`<tr${sel===dn?' style="font-weight:700"':""}><td>DN${dn}</td><td>${id}</td><td>${f1(v,2)}</td><td>${f1(Rr,0)}</td><td class="${ok?"ok":"bad"}">${ok?"OK":"×"}</td></tr>`}
+ const pp=fl*num("xH")*1000/(0.75*0.93);
+ $("xK").innerHTML=`<div><b>${f1(fl*1000,1)} L/s</b><span>CHW flow (${f1(fl*3600,1)} m³/h)</span></div><div><b>${sel?"DN"+sel:"—"}</b><span>Selected Sch.40 pipe</span></div><div><b>${f1(Q/3517,0)} TR</b><span>${f1(Q/cop/1000,0)} kW compressor</span></div><div><b>${f1(rej/1000,0)} kW</b><span>Tower rejection · CW ${f1(cw*1000,1)} L/s</span></div><div><b>${f1(pp/1000,1)} kW</b><span>CHW pump input</span></div><div><b>${f1(rej/1000*1.5,0)} L/h</b><span>Tower evaporation (≈1.5 L/h·kW)</span></div>`;
+ $("xT").innerHTML="<tr><th>Size</th><th>ID mm</th><th>V m/s</th><th>R Pa/m</th><th></th></tr>"+rows}
+["xQ","xDT","xR","xV","xC","xH"].forEach(i=>$(i).addEventListener("input",calcPipe));
+
+/* ---------- equipment & BOM (port of engine module 10) ---------- */
+let CO=null,BOM=[];
+const IEC=[0.18,0.25,0.37,0.55,0.75,1.1,1.5,2.2,3,4,5.5,7.5,11,15,18.5,22,30,37,45,55,75,90,110,132,160,200,250,315],KVS=[0.25,0.4,0.63,1,1.6,2.5,4,6.3,10,16,25,40,63,100,160,250,400,630];
+const motor=(kw,mg=1.15)=>IEC.find(m=>m>=kw*mg)||">315";
+function pipeSel(fl,t,maxR,vmax){const rho=rhoW(t),mu=muW(t);for(const [dn,id] of Object.entries(SCH)){const D=id/1000,v=fl/(Math.PI*D*D/4),Rr=dpm(fl,D,rho,mu/rho,4.5e-5);if(Rr<=maxR&&v<=vmax)return{dn:+dn,v,R:Rr}}return{dn:999,v:0,R:0}}
+function calcBom(){if(!CO)return;const {Vsa,Voz,Qc,Qcs,m,c,cond,A}=CO,N=num("bN"),nc=Math.max(1,num("bC")),B=[],add=(g,i,sp,q,u,n="")=>B.push([g,i,sp,q,u,n]);
+ const qw=Qc/(rhoW(9)*4190*6),fanTsp=412,fanIn=Vsa*fanTsp/(0.7*0.92*0.97);
+ add("Air handling","AHU / ducted FCU",`Air ${f1(Vsa*1000,0)} L/s (${f1(Vsa*3600,0)} m3/h); fan TSP ~${fanTsp} Pa; EC motor ${motor(fanIn/1000*0.92,1.25)} kW; CHW coil 6-8 rows (rate with engine design_coil), face ${f1(Vsa/2.5,2)} m2; total ${f1(Qc/1000,1)} kW / sens ${f1(Qcs/1000,1)} kW; EAT ${f1(m.t)}/${f1(m.twb)} WB; LAT ${f1(c.t)}/${f1(c.twb)} WB; CHW 6/12 C ${f1(qw*1000,2)} L/s; filters G4+F7`,1,"set");
+ const nd=Math.max(Math.ceil(A/16),Math.ceil(Vsa/0.15)),qd=Vsa/nd,neck=[150,200,250,300,350,400].find(d=>qd/(Math.PI*(d/1000)**2/4)<=3)||400;
+ add("Air terminals","Square ceiling diffuser 600x600 4-way + plenum + damper",`Neck O${neck} mm, ${f1(qd*1000,0)} L/s each, NC <= 35`,nd,"pcs");
+ add("Air terminals","Return grille 600x600 with filter","face velocity <= 2.0 m/s",Math.ceil(Vsa*0.9/(0.36*2)),"pcs");
+ const doa=STD.find(d=>Voz/1000/(Math.PI*(d/1000)**2/4)<=4)||1600;
+ add("Air terminals","OA louvre + motorised OA damper",`${f1(Voz,0)} L/s; OA duct O${doa} mm; actuator 24 VAC 0-10 V`,1,"set");
+ add("Ductwork","Flexible insulated duct",`O${neck} mm, <= 1.5 m per diffuser (main duct take-off: engine duct_sheet_metal)`,nd*1.5,"m");
+ const p=pipeSel(qw,9,300,3),ins=p.dn<=50?25:p.dn<=150?32:p.dn<=300?40:50,L=num("bL"),dpc=num("bDp");
+ add("Piping",`CHW branch pipe DN${p.dn}`,`${f1(qw*1000,2)} L/s, V ${f1(p.v,2)} m/s, R ${f1(p.R,0)} Pa/m (supply + return)`,2*L,"m");
+ add("Piping","Elastomeric pipe insulation",`${ins} mm for DN${p.dn}`,2*L,"m");
+ add("Piping","Condensate uPVC DN25-32 + P-trap",`${f1(cond,1)} kg/h; slope >= 1 %; trap seal >= ${Math.ceil(fanTsp*0.65/9.81+25)} mm`,L,"m");
+ const kv=qw*3600/Math.sqrt(dpc/100),kvs=KVS.reduce((a,b)=>Math.abs(Math.log(b/kv))<Math.abs(Math.log(a/kv))?b:a),dpa=(qw*3600/kvs)**2*100;
+ add("Valves","2-way modulating control valve + actuator (or PICV)",`DN${Math.min(p.dn,50)}; Kv calc ${f1(kv,2)} -> Kvs ${kvs}; dp ${f1(dpa,0)} kPa; authority ${f1(dpa/(dpa+dpc),2)}; equal-%`,1,"set");
+ [["Isolating valve",2],["Y-strainer",1],["Balancing valve with test points",1],["Flexible connector",2],["Pressure gauge",2],["Thermometer",2],["Automatic air vent",1],["Drain valve",1]].forEach(([i,q])=>add("Valves",i,`DN${p.dn} PN16`,q,"pcs"));
+ [["Zone T + RH sensor","NTC10k / 0-10 V"],["CO2 sensor (DCV)","NDIR 0-2000 ppm"],["Supply-air temp sensor","duct probe"],["Filter DP switch","50-500 Pa"],["Fan status","current / DP switch"],["Drain-pan float switch","overflow cut-out"],["DDC controller","~8 AI, 6 AO, 6 DI, 4 DO, BACnet"]].forEach(([i,sp])=>add("Controls",i,sp,1,"pcs"));
+ B.forEach(b=>b[5]=`per zone; x ${N} zones = ${f1(b[3]*N,b[3]%1?1:0)}`);
+ const cap=Qc*N*1.1,cop=num("xC")||5.5,rej=cap*(1+1/cop),chw=cap/(rhoW(9)*4190*5.5),cw=rej/(rhoW(32)*4190*5),wb=num("bWB");
+ add("Plant","Water-cooled chiller",`${f1(cap/nc/1000,0)} kW (${f1(cap/nc/3517,0)} TR) each; CHW 12->6 C ${f1(chw*1000/nc,1)} L/s; CW 32->37 C ${f1(cw*1000/nc,1)} L/s; COP >= ${cop}, IPLV >= ${f1(cop*1.25,1)}`,nc,"sets");
+ add("Plant","Cooling tower, induced draft counter-flow",`${f1(rej/nc/1000,0)} kW each; ${f1(cw*1000/nc,1)} L/s; 37->32 C at ${wb} C WB (approach ${f1(32-wb,0)} K); VSD fan`,nc,"sets");
+ [["Chilled-water pump",chw/nc,num("xH")||250],["Condenser-water pump",cw/nc,200]].forEach(([nm,fl,hd])=>add("Plant",nm,`${f1(fl*1000,1)} L/s (${f1(fl*3600,0)} m3/h) @ ${hd} kPa; eta >= 75 %; motor ${motor(fl*hd/0.75)} kW IE3 + VSD`,nc+1,"sets","N duty + 1 standby"));
+ const vol=cap/1000*num("bV"),ve=vol*(rhoW(6)/rhoW(35)-1),vt=ve/(1-4.3/6.4);
+ add("Plant","Diaphragm expansion tank",`system ~${f1(vol,0)} L; expansion ${f1(ve,0)} L; tank >= ${f1(vt,0)} L PN10; pre-charge 3.3 bar`,1,"pcs");
+ ["Air & dirt separator","Chemical dosing + water treatment","Make-up water tank & pump","Electromagnetic flow / BTU meter","Chiller plant manager (BMS)","Remote CHW DP sensor","Plant valves, strainers, check valves (per P&ID)"].forEach(i=>add("Plant",i,"",1,"lot"));
+ const ph=pipeSel(chw,9,400,3),pc=pipeSel(cw,32,400,3);
+ add("Plant piping",`CHW header DN${ph.dn}`,`${f1(chw*1000,1)} L/s, V ${f1(ph.v,2)} m/s`,0,"m","length from layout");
+ add("Plant piping",`CW header DN${pc.dn}`,`${f1(cw*1000,1)} L/s, V ${f1(pc.v,2)} m/s`,0,"m","length from layout");
+ BOM=B;let g0="";
+ $("bT").innerHTML="<tr><th>Group</th><th style='text-align:left'>Item</th><th style='text-align:left'>Specification</th><th>Qty</th><th>Unit</th><th>Note</th></tr>"+
+  B.map(b=>{const h=`<tr><td>${b[0]===g0?"":"<b>"+b[0]+"</b>"}</td><td style="text-align:left">${b[1]}</td><td style="text-align:left;font-size:12.5px">${b[2]}</td><td>${f1(b[3],b[3]%1?1:0)}</td><td>${b[4]}</td><td style="font-size:12px">${b[5]}</td></tr>`;g0=b[0];return h}).join("")}
+["bN","bC","bWB","bL","bDp","bV","xC","xH"].forEach(i=>$(i).addEventListener("input",calcBom));
+$("bCsv").onclick=()=>{const q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[["group","item","specification","qty","unit","note","unit_price","amount"]].concat(BOM.map((b,i)=>[...b,"","=D"+(i+2)+"*G"+(i+2)]));
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv"}));a.download="hvac_bom.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+
+function drawAll(){drawChart();drawLoad()}
+addEventListener("resize",drawAll);
+psyCalc();calcLoad();calcPipe();
+</script>
+</body>
+</html>

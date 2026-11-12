@@ -1,0 +1,45 @@
+﻿group,item,specification,qty,unit,note,unit_price,amount
+Air handling,AHU / ducted FCU (Office-01),"Air 812 L/s (2925 m3/h); ESP 92 Pa; fan TSP 412 Pa; EC/VSD motor 0.75 kW; CHW coil 8 rows x 10 FPI, 3/8in Cu/Al, 11 circuits, water dp 28 kPa, air dp ~167 Pa, face 0.32 m2 @<=2.5 m/s, total 17.5 kW / sens 12.6 kW; EAT 25.2/18.4 WB, LAT 12.2/11.8 WB; CHW 6/12 C 0.69 L/s, water dp <= 40 kPa; filters G4 + F7; drain pan SS304",1,set,,,=D2*G2
+Air terminals,"Square ceiling diffuser 4-way, with plenum box & damper","Neck O200 mm, 81 L/s each, NC <= 35, face 600x600",10,pcs,,,=D3*G3
+Air terminals,Return grille (eggcrate / linear) with filter,"600x600 mm, face velocity <= 2.0 m/s",2,pcs,,,=D4*G4
+Air terminals,Outdoor-air intake louvre + motorised OA damper,82 L/s; louvre net free velocity <= 2.5 m/s; OA duct O200 mm; damper actuator 24 VAC 0-10 V,1,set,,,=D5*G5
+Ductwork,Galvanised steel sheet 0.5 mm (Z275),"for round/rect duct, sizes O250, O250, O250, O250; incl. 15 % seams/waste",70.9,kg,18.1 m2,,=D6*G6
+Ductwork,Galvanised steel sheet 0.6 mm (Z275),"for round/rect duct, sizes O450, O315, O315; incl. 15 % seams/waste",147.0,kg,31.2 m2,,=D7*G7
+Ductwork,Duct insulation (supply),"Glass wool 25 mm 24-32 kg/m3 with FSK facing, or elastomeric 19 mm",47.1,m2,,,=D8*G8
+Ductwork,Flexible insulated duct to diffusers,"O200 mm, <= 1.5 m each, fully extended",15.0,m,,,=D9*G9
+Ductwork,Volume control damper (opposed blade),"one per branch, locking quadrant",6,pcs,,,=D10*G10
+Ductwork,"Supports: threaded rod M8/M10, angle 30x30x3, anchors",spacing <= 2.4 m (SMACNA),19,sets,,,=D11*G11
+Ductwork,Flexible canvas connector at AHU,"fire-retardant, 100-150 mm",2,pcs,,,=D12*G12
+Piping,CHW branch pipe DN32 (steel Sch.40 or PP-R/copper equiv.),"0.69 L/s, V 0.72 m/s, R 211 Pa/m; supply + return",30.0,m,,,=D13*G13
+Piping,"Pipe insulation, closed-cell elastomeric","25 mm, for DN32",30.0,m,,,=D14*G14
+Piping,Condensate drain pipe uPVC DN25-32 + P-trap,6.9 kg/h; slope >= 1 %; trap seal >= 53 mm (negative pressure),15.0,m,,,=D15*G15
+Valves,2-way modulating control valve + actuator (or PICV),"DN32, Kv calc 3.95 -> Kvs 4.0, dp 39 kPa, equal-%, 24 VAC 0-10 V, authority ~0.49",1,set,,,=D16*G16
+Valves,Isolating ball/butterfly valve,"DN32, PN16",2,pcs,,,=D17*G17
+Valves,Y-strainer 20 mesh,"DN32, PN16",1,pcs,,,=D18*G18
+Valves,Balancing valve with test points (DRV),"DN32, PN16",1,pcs,,,=D19*G19
+Valves,Flexible connector (rubber),"DN32, PN16",2,pcs,,,=D20*G20
+Valves,Pressure gauge 0-10 bar + cock,"DN32, PN16",2,pcs,,,=D21*G21
+Valves,Thermometer 0-50 C,"DN32, PN16",2,pcs,,,=D22*G22
+Valves,Automatic air vent,"DN32, PN16",1,pcs,,,=D23*G23
+Valves,Drain valve,"DN32, PN16",1,pcs,,,=D24*G24
+Controls,Zone temperature + RH sensor,"NTC10k / 0-10 V, +-0.3 K, +-3 %RH",1,pcs,,,=D25*G25
+Controls,CO2 sensor (DCV),"NDIR 0-2000 ppm, 0-10 V",1,pcs,,,=D26*G26
+Controls,Supply-air temperature sensor (duct),"NTC/PT1000, 200 mm probe",1,pcs,,,=D27*G27
+Controls,Filter differential pressure switch,50-500 Pa,1,pcs,,,=D28*G28
+Controls,Fan status (current switch / DP switch),DI,1,pcs,,,=D29*G29
+Controls,Frost/condensate overflow switch,float switch in drain pan,1,pcs,,,=D30*G30
+Controls,DDC controller (BACnet MS/TP or IP),"~8 AI, 6 AO, 6 DI, 4 DO",1,pcs,,,=D31*G31
+Plant,Water-cooled chiller (screw / centrifugal),"384 kW (109 TR) each; CHW 12->6 C 16.7 L/s; CW 32->37 C 21.8 L/s; full-load COP >= 5.5, IPLV >= 6.9; refrigerant R134a/R513A/R1234ze; evap & cond dp <= 70 kPa; 400 V 3ph 50 Hz",2,sets,,,=D32*G32
+Plant,"Cooling tower (induced draft, counter-flow, FRP)",454 kW rejection each; 21.8 L/s; 37->32 C at 28 C WB (approach 4 K); VSD fan; drift <= 0.005 %; SS basin strainer,2,sets,,,=D33*G33
+Plant,Chilled-water pump (end-suction / split-case),"16.7 L/s (60 m3/h) @ 250 kPa (25 m); eta >= 75 %; motor 7.5 kW IE3, VSD",3,sets,N duty + 1 standby,,=D34*G34
+Plant,Condenser-water pump (end-suction / split-case),"21.8 L/s (78 m3/h) @ 200 kPa (20 m); eta >= 75 %; motor 7.5 kW IE3, VSD",3,sets,N duty + 1 standby,,=D35*G35
+Plant,Diaphragm expansion tank (CHW),"system ~6146 L; expansion 37 L; tank >= 111 L, PN10, pre-charge 3.3 bar",1,pcs,,,=D36*G36
+Plant,Air & dirt separator,"on CHW return, header size",1,lot,,,=D37*G37
+Plant,Chemical dosing pot + water treatment,"CHW closed loop + CW (inhibitor, biocide, TDS blowdown)",1,lot,,,=D38*G38
+Plant,Make-up water tank & transfer pump,tower make-up ~1362 L/h evaporation,1,lot,,,=D39*G39
+Plant,Flow meter (electromagnetic) + BTU meter,CHW main,1,lot,,,=D40*G40
+Plant,Chiller plant manager / BMS controller,"sequencing, CHW & CW reset, DP control, BACnet IP",1,lot,,,=D41*G41
+Plant,Remote differential pressure sensor (CHW),"0-250 kPa, at index circuit",1,lot,,,=D42*G42
+Plant,"Butterfly valves, check valves, strainers, flex connectors (plant)","per P&ID, PN16",1,lot,,,=D43*G43
+Plant piping,CHW header pipe DN150 steel Sch.40 (welded/grooved),"33.3 L/s, V 1.79 m/s, R 183 Pa/m",0,m,length from layout,,=D44*G44
+Plant piping,CW header pipe DN150 steel Sch.40 (welded/grooved),"43.6 L/s, V 2.34 m/s, R 287 Pa/m",0,m,length from layout,,=D45*G45
